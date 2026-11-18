@@ -8,6 +8,6 @@
         'red' => 'bg-red-100 text-red-800',
     ][$color] ?? 'bg-slate-100 text-slate-700';
 @endphp
-<span {{ $attributes->merge(['class' => "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium $classes"]) }}>
+<span {{ $attributes->merge(['class' => "inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-xs font-medium $classes"]) }}>
     {{ $status?->label() }}
 </span>

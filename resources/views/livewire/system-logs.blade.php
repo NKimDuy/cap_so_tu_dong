@@ -8,7 +8,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
                 <x-input-label>Người thực hiện</x-input-label>
-                <select wire:model.live="userFilter" class="w-full rounded-lg border-slate-300 text-sm">
+                <select wire:model.live="userFilter" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
                     <option value="">Tất cả</option>
                     @foreach($users as $u)
                         <option value="{{ $u->id }}">{{ $u->name }}</option>
@@ -17,7 +17,7 @@
             </div>
             <div>
                 <x-input-label>Hành động</x-input-label>
-                <select wire:model.live="actionFilter" class="w-full rounded-lg border-slate-300 text-sm">
+                <select wire:model.live="actionFilter" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
                     <option value="">Tất cả</option>
                     @foreach($actions as $a)
                         <option value="{{ $a->value }}">{{ $a->label() }}</option>

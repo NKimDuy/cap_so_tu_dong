@@ -8,7 +8,7 @@
         <div class="flex flex-wrap items-end gap-4">
             <div>
                 <x-input-label>Năm</x-input-label>
-                <select wire:model.live="year" class="rounded-lg border-slate-300 text-sm">
+                <select wire:model.live="year" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
                     @foreach($availableYears as $y)
                         <option value="{{ $y }}">{{ $y }}</option>
                     @endforeach
@@ -18,11 +18,11 @@
                 </select>
             </div>
             <div>
-                <x-input-label>Từ ngày (thống kê top người xin)</x-input-label>
+                <x-input-label>Từ ngày ký (thống kê top người xin)</x-input-label>
                 <x-text-input type="date" wire:model.live="fromDate" />
             </div>
             <div>
-                <x-input-label>Đến ngày</x-input-label>
+                <x-input-label>Đến ngày ký</x-input-label>
                 <x-text-input type="date" wire:model.live="toDate" />
             </div>
         </div>
@@ -41,7 +41,7 @@
         </x-card>
     </div>
 
-    <x-card title="Số công văn theo tháng - năm {{ $year }}">
+    <x-card title="Số công văn theo tháng (theo ngày ghi nhận/ngày ký) - năm {{ $year }}">
         <div class="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-3">
             @foreach($monthly as $m)
                 <div class="text-center">
@@ -86,6 +86,8 @@
                 <thead>
                     <tr class="text-left text-slate-500 border-b border-slate-200">
                         <th class="py-2 pr-4">Số</th>
+                        <th class="py-2 pr-4">Năm</th>
+                        <th class="py-2 pr-4">Ngày ghi nhận/Ngày ký</th>
                         <th class="py-2 pr-4">Người xin</th>
                         <th class="py-2 pr-4">Nội dung</th>
                         <th class="py-2 pr-4">Ngày dự kiến trả</th>
@@ -94,7 +96,9 @@
                 <tbody>
                     @forelse($outstanding as $doc)
                         <tr class="border-b border-slate-100">
-                            <td class="py-2 pr-4 font-medium">{{ $doc->formatted_number }}</td>
+                            <td class="py-2 pr-4 font-semibold">{{ $doc->number_display }}</td>
+                            <td class="py-2 pr-4 text-slate-500">{{ $doc->year }}</td>
+                            <td class="py-2 pr-4"><x-date-time :value="$doc->signed_at" :time="$doc->signed_has_time" /></td>
                             <td class="py-2 pr-4">{{ $doc->requester?->name }}</td>
                             <td class="py-2 pr-4">{{ $doc->content }}</td>
                             <td class="py-2 pr-4 {{ $doc->expected_return_date?->isPast() ? 'text-red-600 font-medium' : '' }}">
@@ -102,7 +106,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="py-6 text-center text-slate-400">Không có hồ sơ nào chưa trả.</td></tr>
+                        <tr><td colspan="6" class="py-6 text-center text-slate-400">Không có hồ sơ nào chưa trả.</td></tr>
                     @endforelse
                 </tbody>
             </table>

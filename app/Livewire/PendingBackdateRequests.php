@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\HasFlashMessages;
 use App\Enums\BackdateRequestStatus;
 use App\Enums\DocumentNumberStatus;
 use App\Exceptions\BusinessRuleException;
@@ -14,6 +15,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class PendingBackdateRequests extends Component
 {
+    use HasFlashMessages;
+
     public array $selectedPool = [];
     public array $rejectReason = [];
 
@@ -23,7 +26,7 @@ class PendingBackdateRequests extends Component
         $poolId = $this->selectedPool[$requestId] ?? null;
 
         if (! $poolId) {
-            session()->flash('error', 'Vui lòng chọn một số lùi dự trữ trong kho trước khi duyệt.');
+            $this->notifyError('Vui lòng chọn một số lùi dự trữ trong kho trước khi duyệt.');
 
             return;
         }
@@ -32,9 +35,9 @@ class PendingBackdateRequests extends Component
 
         try {
             $doc = $service->approveBackdateRequest(auth()->user(), $req, $pool);
-            session()->flash('success', "Đã cấp số {$doc->formatted_number} cho {$req->requester->name}.");
+            $this->notifySuccess("Đã cấp số {$doc->formatted_number} cho {$req->requester->name}.");
         } catch (BusinessRuleException $e) {
-            session()->flash('error', $e->getMessage());
+            $this->notifyError($e->getMessage());
         }
     }
 
@@ -44,9 +47,9 @@ class PendingBackdateRequests extends Component
 
         try {
             $service->rejectBackdateRequest(auth()->user(), $req, $this->rejectReason[$requestId] ?? null);
-            session()->flash('success', 'Đã từ chối yêu cầu xin số lùi.');
+            $this->notifySuccess('Đã từ chối yêu cầu xin số lùi.');
         } catch (BusinessRuleException $e) {
-            session()->flash('error', $e->getMessage());
+            $this->notifyError($e->getMessage());
         }
     }
 
@@ -57,9 +60,12 @@ class PendingBackdateRequests extends Component
                 ->where('status', BackdateRequestStatus::DangCho->value)
                 ->oldest()
                 ->get(),
-            'poolNumbers' => DocumentNumber::where('status', DocumentNumberStatus::SoLuiDuTru->value)
+            // Nhóm số dự trữ theo năm: mỗi yêu cầu chỉ được chọn số cùng năm với ngày ghi nhận/ngày ký.
+            'poolByYear' => DocumentNumber::where('status', DocumentNumberStatus::SoLuiDuTru->value)
+                ->orderBy('year')
                 ->orderBy('number')
-                ->get(),
+                ->get()
+                ->groupBy('year'),
         ]);
     }
 }

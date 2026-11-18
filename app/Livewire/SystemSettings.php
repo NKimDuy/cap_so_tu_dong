@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\HasFlashMessages;
 use App\Enums\SystemLogAction;
 use App\Models\Setting;
 use App\Models\SystemLog;
@@ -11,6 +12,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class SystemSettings extends Component
 {
+    use HasFlashMessages;
+
     public int $max_pending_numbers = 3;
     public int $reminder_interval_days = 7;
 
@@ -42,7 +45,7 @@ class SystemSettings extends Component
             ['max_pending_numbers' => $this->max_pending_numbers, 'reminder_interval_days' => $this->reminder_interval_days]
         );
 
-        session()->flash('success', 'Đã lưu cấu hình hệ thống.');
+        $this->notifySuccess('Đã lưu cấu hình hệ thống.');
     }
 
     public function render()

@@ -12,11 +12,19 @@ Số công văn của bạn đã được cấp thành công với thông tin nh
 | Loại | {{ $doc->is_backdate ? 'Số lùi' : 'Bình thường' }} |
 | Nội dung xin số | {{ $doc->content }} |
 | Người ký số | {{ $doc->signer }} |
-| Ngày xin số | {{ $doc->request_date?->format('d/m/Y') }} |
+| Ngày ghi nhận/Ngày ký | {{ $doc->signed_at?->format($doc->signed_has_time ? 'd/m/Y H:i' : 'd/m/Y') }} |
+@if($doc->backdate_issued_at)
+| Ngày cấp số lùi | {{ $doc->backdate_issued_at->format('d/m/Y H:i') }} |
+@endif
 | Ngày dự kiến trả số | {{ $doc->expected_return_date?->format('d/m/Y') }} |
+@if($doc->registeredBy)
+| Người đăng ký hộ | {{ $doc->registeredBy->name }} |
+@endif
 @endcomponent
 
-Lưu ý: bạn hiện được phép giữ tối đa 3 số chưa trả cùng lúc. Vui lòng trả giấy tờ đúng hạn để có thể tiếp tục xin số mới.
+@if(! $doc->requester?->isManagerLike())
+Lưu ý: bạn được phép giữ tối đa {{ app(\App\Services\DocumentNumberService::class)->maxPending() }} số chưa trả cùng lúc. Vui lòng trả giấy tờ đúng hạn để có thể tiếp tục xin số mới.
+@endif
 
 @component('mail::button', ['url' => route('dashboard')])
 Xem trên hệ thống

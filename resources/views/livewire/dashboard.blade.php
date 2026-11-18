@@ -37,6 +37,8 @@
                         <thead>
                             <tr class="text-left text-slate-500 border-b border-slate-200">
                                 <th class="py-2 pr-4">Số</th>
+                                <th class="py-2 pr-4">Năm</th>
+                                <th class="py-2 pr-4">Ngày ghi nhận/Ngày ký</th>
                                 <th class="py-2 pr-4">Nội dung</th>
                                 <th class="py-2 pr-4">Trạng thái</th>
                                 <th class="py-2 pr-4">Hạn trả</th>
@@ -45,7 +47,9 @@
                         <tbody>
                             @foreach($recent as $doc)
                                 <tr class="border-b border-slate-100">
-                                    <td class="py-2 pr-4 font-medium">{{ $doc->formatted_number }}</td>
+                                    <td class="py-2 pr-4 font-semibold">{{ $doc->number_display }}</td>
+                                    <td class="py-2 pr-4 text-slate-500">{{ $doc->year }}</td>
+                                    <td class="py-2 pr-4"><x-date-time :value="$doc->signed_at" :time="$doc->signed_has_time" /></td>
                                     <td class="py-2 pr-4">{{ $doc->content }}</td>
                                     <td class="py-2 pr-4"><x-status-badge :status="$doc->status" /></td>
                                     <td class="py-2 pr-4">{{ $doc->expected_return_date?->format('d/m/Y') ?? '-' }}</td>
@@ -69,7 +73,7 @@
                 <div class="text-2xl font-semibold text-slate-800 mt-1">{{ $reserveCount }}</div>
             </x-card>
             <x-card>
-                <div class="text-sm text-slate-500">Số đã cấp trong tháng {{ now()->month }}</div>
+                <div class="text-sm text-slate-500">Số đã cấp trong tháng {{ now()->month }} (theo ngày ký)</div>
                 <div class="text-2xl font-semibold text-slate-800 mt-1">{{ $issuedThisMonth }}</div>
             </x-card>
             <x-card>
@@ -87,6 +91,7 @@
                         <thead>
                             <tr class="text-left text-slate-500 border-b border-slate-200">
                                 <th class="py-2 pr-4">Số</th>
+                                <th class="py-2 pr-4">Năm</th>
                                 <th class="py-2 pr-4">Người xin</th>
                                 <th class="py-2 pr-4">Hạn trả</th>
                             </tr>
@@ -94,7 +99,8 @@
                         <tbody>
                             @foreach($overdue as $doc)
                                 <tr class="border-b border-slate-100">
-                                    <td class="py-2 pr-4 font-medium">{{ $doc->formatted_number }}</td>
+                                    <td class="py-2 pr-4 font-semibold">{{ $doc->number_display }}</td>
+                                    <td class="py-2 pr-4 text-slate-500">{{ $doc->year }}</td>
                                     <td class="py-2 pr-4">{{ $doc->requester?->name }}</td>
                                     <td class="py-2 pr-4 text-red-600">{{ $doc->expected_return_date?->format('d/m/Y') }}</td>
                                 </tr>

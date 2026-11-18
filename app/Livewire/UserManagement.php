@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\HasFlashMessages;
 use App\Enums\SystemLogAction;
 use App\Enums\UserRole;
 use App\Models\SystemLog;
@@ -15,6 +16,7 @@ use Livewire\WithPagination;
 #[Layout('layouts.app')]
 class UserManagement extends Component
 {
+    use HasFlashMessages;
     use WithPagination;
 
     public bool $showForm = false;
@@ -84,7 +86,7 @@ class UserManagement extends Component
             $user->save();
 
             SystemLog::record(auth()->id(), SystemLogAction::SuaTaiKhoan, "Cập nhật tài khoản {$user->email}.", ['user_id' => $user->id]);
-            session()->flash('success', 'Đã cập nhật tài khoản.');
+            $this->notifySuccess('Đã cập nhật tài khoản.');
         } else {
             $user = User::create([
                 'name' => $this->name,
@@ -95,7 +97,7 @@ class UserManagement extends Component
             ]);
 
             SystemLog::record(auth()->id(), SystemLogAction::TaoTaiKhoan, "Tạo tài khoản {$user->email}.", ['user_id' => $user->id]);
-            session()->flash('success', 'Đã tạo tài khoản mới.');
+            $this->notifySuccess('Đã tạo tài khoản mới.');
         }
 
         $this->cancel();
@@ -106,7 +108,7 @@ class UserManagement extends Component
         $user = User::findOrFail($id);
 
         if ($user->id === auth()->id()) {
-            session()->flash('error', 'Bạn không thể tự khóa tài khoản của chính mình.');
+            $this->notifyError('Bạn không thể tự khóa tài khoản của chính mình.');
 
             return;
         }
@@ -121,7 +123,7 @@ class UserManagement extends Component
             ['user_id' => $user->id]
         );
 
-        session()->flash('success', $user->is_active ? 'Đã mở khóa tài khoản.' : 'Đã khóa tài khoản.');
+        $this->notifySuccess($user->is_active ? 'Đã mở khóa tài khoản.' : 'Đã khóa tài khoản.');
     }
 
     public function render()

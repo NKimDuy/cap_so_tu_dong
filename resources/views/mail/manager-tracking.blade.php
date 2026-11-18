@@ -1,7 +1,11 @@
 @component('mail::message')
 # Thông báo theo dõi: có yêu cầu xin số mới
 
-Chuyên viên **{{ $doc->requester?->name }}** vừa xin số công văn bình thường:
+@if($doc->registeredBy)
+**{{ $doc->registeredBy->name }}** vừa xin số công văn bình thường **giúp** **{{ $doc->requester?->name }}**:
+@else
+**{{ $doc->requester?->name }}** vừa xin số công văn bình thường:
+@endif
 
 @component('mail::table')
 | Thông tin | Chi tiết |

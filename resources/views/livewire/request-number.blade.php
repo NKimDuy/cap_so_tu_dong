@@ -29,16 +29,53 @@
 
             <div>
                 <x-input-label for="signer" required>Người ký số</x-input-label>
-                <x-text-input wire:model="signer" id="signer" placeholder="VD: TS. Nguyễn Kim Phước" />
+                <select wire:model="signer" id="signer"
+                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30">
+                    <option value="">-- Chọn người ký số --</option>
+                    @foreach($signers as $s)
+                        <option value="{{ $s->name }}">{{ $s->name }}</option>
+                    @endforeach
+                    <option value="{{ \App\Models\Signer::OTHER }}">Khác (chưa xác định, bổ sung sau)</option>
+                </select>
                 <x-error for="signer" />
+                @if($signers->isEmpty())
+                    <p class="text-xs text-amber-700 mt-1">Chưa có người ký số nào trong danh sách. Vui lòng liên hệ Quản lý để cài đặt.</p>
+                @endif
             </div>
 
-            @if($mode === 'so_lui')
+            @if($mode === 'so_lui' && $picksPool)
+                {{-- Quản lý/Admin: chọn luôn số dự trữ, được cấp thẳng --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <x-input-label for="requested_date" required>Ngày ghi nhận/Ngày ký (quá khứ)</x-input-label>
+                        <x-text-input type="date" wire:model.live="requested_date" id="requested_date" />
+                        <x-error for="requested_date" />
+                    </div>
+                    <div>
+                        <x-input-label for="pool_id" required>Số dự trữ</x-input-label>
+                        @if(! $signYear)
+                            <p class="text-sm text-slate-500 py-2">Chọn ngày ký trước để hiện số dự trữ cùng năm.</p>
+                        @elseif($poolNumbers->isEmpty())
+                            <p class="text-sm text-amber-700 py-2">Kho không còn số dự trữ năm {{ $signYear }}.</p>
+                        @else
+                            <select wire:model="pool_id" id="pool_id"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30">
+                                <option value="">-- Chọn số dự trữ năm {{ $signYear }} --</option>
+                                @foreach($poolNumbers as $p)
+                                    <option value="{{ $p->id }}">{{ $p->formatted_number }}</option>
+                                @endforeach
+                            </select>
+                        @endif
+                        <x-error for="pool_id" />
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 -mt-2">Bạn là Quản lý/Admin nên số lùi được cấp thẳng từ kho, không qua bước chờ duyệt.</p>
+            @elseif($mode === 'so_lui')
                 <div>
-                    <x-input-label for="requested_date" required>Ngày xin số (ngày quá khứ)</x-input-label>
+                    <x-input-label for="requested_date" required>Ngày ghi nhận/Ngày ký (ngày trong quá khứ)</x-input-label>
                     <x-text-input type="date" wire:model="requested_date" id="requested_date" />
                     <x-error for="requested_date" />
-                    <p class="text-xs text-slate-500 mt-1">Yêu cầu sẽ được gửi cho quản lý xem xét và cấp số từ kho dự trữ.</p>
+                    <p class="text-xs text-slate-500 mt-1">Yêu cầu sẽ được gửi cho quản lý xem xét và cấp một số dự trữ <strong>cùng năm</strong> với ngày này. Nếu kho không còn số của năm đó, quản lý sẽ từ chối.</p>
                 </div>
             @endif
 
@@ -51,7 +88,7 @@
             <div class="pt-2">
                 <x-primary-button type="submit" wire:loading.attr="disabled">
                     <span wire:loading.remove wire:target="submit">
-                        {{ $mode === 'binh_thuong' ? 'Xin số ngay' : 'Gửi yêu cầu xin số lùi' }}
+                        {{ $mode === 'binh_thuong' ? 'Xin số ngay' : ($picksPool ? 'Cấp số lùi' : 'Gửi yêu cầu xin số lùi') }}
                     </span>
                     <span wire:loading wire:target="submit">Đang xử lý...</span>
                 </x-primary-button>

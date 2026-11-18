@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\HasFlashMessages;
 use App\Exceptions\BusinessRuleException;
 use App\Models\DocumentNumber;
 use App\Services\DocumentNumberService;
@@ -12,6 +13,7 @@ use Livewire\WithPagination;
 #[Layout('layouts.app')]
 class MyNumbers extends Component
 {
+    use HasFlashMessages;
     use WithPagination;
 
     public string $statusFilter = '';
@@ -27,15 +29,15 @@ class MyNumbers extends Component
 
         try {
             $service->cancel(auth()->user(), $doc, null);
-            session()->flash('success', "Đã hủy số {$doc->formatted_number}.");
+            $this->notifySuccess("Đã hủy số {$doc->formatted_number}.");
         } catch (BusinessRuleException $e) {
-            session()->flash('error', $e->getMessage());
+            $this->notifyError($e->getMessage());
         }
     }
 
     public function render()
     {
-        $query = DocumentNumber::where('requester_id', auth()->id())->latest('id');
+        $query = DocumentNumber::with('registeredBy')->where('requester_id', auth()->id())->latest('id');
 
         if ($this->statusFilter) {
             $query->where('status', $this->statusFilter);

@@ -33,8 +33,10 @@ class Dashboard extends Component
         if ($user->isManagerLike()) {
             $data['pendingApprovals'] = BackdateRequest::where('status', BackdateRequestStatus::DangCho->value)->count();
             $data['reserveCount'] = DocumentNumber::reservePool()->count();
-            $data['issuedThisMonth'] = DocumentNumber::whereYear('record_date', now()->year)
-                ->whereMonth('record_date', now()->month)->count();
+            // Số đã cấp có ngày ghi nhận/ngày ký trong tháng này (không tính số còn trong kho dự trữ).
+            $data['issuedThisMonth'] = DocumentNumber::issued()
+                ->whereYear('request_date', now()->year)
+                ->whereMonth('request_date', now()->month)->count();
             $data['overdue'] = DocumentNumber::outstanding()
                 ->where('expected_return_date', '<', now()->toDateString())
                 ->with('requester')->orderBy('expected_return_date')->limit(8)->get();
@@ -42,7 +44,7 @@ class Dashboard extends Component
 
         if ($user->isAdmin()) {
             $data['totalUsers'] = User::count();
-            $data['totalThisYearAll'] = DocumentNumber::where('year', $year)->count();
+            $data['totalThisYearAll'] = DocumentNumber::issued()->whereYear('request_date', $year)->count();
             $data['activeUsers'] = User::active()->count();
         }
 

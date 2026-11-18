@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use App\Models\DocumentNumber;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -21,15 +22,15 @@ class Reports extends Component
 
     public function render()
     {
-        $yearQuery = DocumentNumber::where('year', $this->year)
-            ->whereNotNull('requester_id');
+        // Thống kê theo NGÀY GHI NHẬN/NGÀY KÝ: cột request_date chứa đúng ngày này cho mọi số đã cấp
+        // (số bình thường = ngày cấp, số lùi = ngày ký trong quá khứ). Số còn trong kho dự trữ không tính.
+        $yearQuery = DocumentNumber::issued()->whereYear('request_date', $this->year);
 
         $totalThisYear = (clone $yearQuery)->count();
 
         $byMonth = (clone $yearQuery)
-            ->selectRaw('MONTH(record_date) as month, COUNT(*) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+            ->pluck('request_date')
+            ->countBy(fn ($date) => Carbon::parse($date)->month);
 
         $monthly = collect(range(1, 12))->map(fn ($m) => [
             'month' => $m,
@@ -41,16 +42,16 @@ class Reports extends Component
             ->orderBy('expected_return_date')
             ->get();
 
-        $topRequestersQuery = DocumentNumber::query()->whereNotNull('requester_id');
+        $topRequestersQuery = DocumentNumber::issued()->whereNotNull('requester_id');
 
         if ($this->fromDate) {
-            $topRequestersQuery->whereDate('record_date', '>=', $this->fromDate);
+            $topRequestersQuery->whereDate('request_date', '>=', $this->fromDate);
         }
         if ($this->toDate) {
-            $topRequestersQuery->whereDate('record_date', '<=', $this->toDate);
+            $topRequestersQuery->whereDate('request_date', '<=', $this->toDate);
         }
         if (! $this->fromDate && ! $this->toDate) {
-            $topRequestersQuery->where('year', $this->year);
+            $topRequestersQuery->whereYear('request_date', $this->year);
         }
 
         $topRequesters = $topRequestersQuery

@@ -1,11 +1,16 @@
 <div class="space-y-6">
+    @include('partials.flash')
+
     <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
             <h1 class="text-xl font-semibold text-slate-800">Quản lý tài khoản</h1>
             <p class="text-sm text-slate-500">Tạo, chỉnh sửa, phân quyền và khóa/mở khóa tài khoản người dùng.</p>
         </div>
         @unless($showForm)
-            <button wire:click="create" class="inline-flex items-center px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700">+ Tạo tài khoản</button>
+            <div class="flex gap-2">
+                <a href="{{ route('admin.nhap-tai-khoan') }}" class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50">Nhập từ file Excel</a>
+                <button wire:click="create" class="inline-flex items-center px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700">+ Tạo tài khoản</button>
+            </div>
         @endunless
     </div>
 
@@ -29,7 +34,7 @@
                 </div>
                 <div>
                     <x-input-label required>Vai trò</x-input-label>
-                    <select wire:model="role" class="w-full rounded-lg border-slate-300 text-sm">
+                    <select wire:model="role" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
                         @foreach(\App\Enums\UserRole::options() as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
                         @endforeach

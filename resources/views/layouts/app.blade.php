@@ -4,21 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name') }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#eff6ff', 100: '#dbeafe', 500: '#2563eb',
-                            600: '#1d4ed8', 700: '#1e40af',
-                        },
-                    },
-                },
-            },
-        }
-    </script>
+    @include('partials.tailwind')
     @livewireStyles
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased">
@@ -32,18 +18,20 @@
             <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
                 <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">Tổng quan</x-nav-link>
 
-                @if(auth()->user()?->isChuyenVien())
-                    <div class="pt-3 pb-1 px-3 text-xs font-semibold text-slate-500 uppercase">Chuyên viên</div>
+                @auth
+                    <div class="pt-3 pb-1 px-3 text-xs font-semibold text-slate-500 uppercase">Xin số</div>
                     <x-nav-link :href="route('so.xin-so')" :active="request()->routeIs('so.xin-so')">Xin số công văn</x-nav-link>
                     <x-nav-link :href="route('so.cua-toi')" :active="request()->routeIs('so.cua-toi')">Số của tôi</x-nav-link>
-                @endif
+                @endauth
 
                 @if(auth()->user()?->isManagerLike())
                     <div class="pt-3 pb-1 px-3 text-xs font-semibold text-slate-500 uppercase">Quản lý</div>
+                    <x-nav-link :href="route('so.xin-so-giup')" :active="request()->routeIs('so.xin-so-giup')">Xin số giúp người khác</x-nav-link>
                     <x-nav-link :href="route('so.duyet-so-lui')" :active="request()->routeIs('so.duyet-so-lui')">Duyệt số lùi</x-nav-link>
                     <x-nav-link :href="route('so.kho-du-tru')" :active="request()->routeIs('so.kho-du-tru')">Kho số lùi dự trữ</x-nav-link>
                     <x-nav-link :href="route('so.tat-ca')" :active="request()->routeIs('so.tat-ca')">Tất cả số công văn</x-nav-link>
                     <x-nav-link :href="route('bao-cao')" :active="request()->routeIs('bao-cao')">Báo cáo thống kê</x-nav-link>
+                    <x-nav-link :href="route('nguoi-ky-so')" :active="request()->routeIs('nguoi-ky-so')">Người ký số</x-nav-link>
                 @endif
 
                 @if(auth()->user()?->isAdmin())
@@ -54,8 +42,10 @@
                 @endif
             </nav>
             <div class="px-3 py-4 border-t border-slate-800 text-xs text-slate-400">
-                Đăng nhập: <span class="text-slate-200">{{ auth()->user()?->name }}</span><br>
-                Vai trò: <span class="text-slate-200">{{ auth()->user()?->role?->label() }}</span>
+                Đăng nhập: <span class="text-slate-200">{{ auth()->user()?->name }}</span>
+                @if(auth()->user()?->isManagerLike())
+                    <br>Vai trò: <span class="text-slate-200">{{ auth()->user()->role->label() }}</span>
+                @endif
             </div>
         </aside>
 
@@ -64,10 +54,14 @@
             <header class="bg-white border-b border-slate-200 px-4 md:px-6 py-3 flex items-center justify-between">
                 <div class="md:hidden font-semibold text-slate-800">Cấp Số Tự Động</div>
                 <div class="flex-1"></div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="text-sm text-slate-600 hover:text-red-600">Đăng xuất</button>
-                </form>
+                <div class="flex items-center gap-5">
+                    <a href="{{ route('doi-mat-khau') }}"
+                       class="text-sm {{ request()->routeIs('doi-mat-khau') ? 'text-brand-600 font-medium' : 'text-slate-600 hover:text-brand-600' }}">Đổi mật khẩu</a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="text-sm text-slate-600 hover:text-red-600">Đăng xuất</button>
+                    </form>
+                </div>
             </header>
 
             <main class="flex-1 p-4 md:p-6">

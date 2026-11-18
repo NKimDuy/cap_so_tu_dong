@@ -1,4 +1,6 @@
 <div class="max-w-xl space-y-6">
+    @include('partials.flash')
+
     <div>
         <h1 class="text-xl font-semibold text-slate-800">Cấu hình hệ thống</h1>
         <p class="text-sm text-slate-500">Năm hiện hành và số reset về 1 được hệ thống tự động xử lý theo năm dương lịch.</p>
